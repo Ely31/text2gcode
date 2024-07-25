@@ -7,7 +7,7 @@ red = (0,0,255)
 blue = (255,0,0)
 black = (0,0,0)
 
-img = cv2.imread("./sources/sample text.jpg")
+img = cv2.imread("./sources/alphabet.jpg")
 img = cv2.blur(img, (15,15))
 display = img
 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -15,18 +15,28 @@ img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 cv2.namedWindow('image', cv2.WINDOW_NORMAL)
 cv2.resizeWindow('image', 1200, 800)
 
-img = cv2.threshold(img, 150, 255, cv2.THRESH_BINARY_INV)[1]
+img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+print("image dimensions:")
 print(img.shape)
 
 contours = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
 cv2.drawContours(display, contours, -1, red, 3)
 
 boundingboxes = []
+prevbox = [0,0,0,0]
 for i in contours:
     contours_poly = cv2.approxPolyDP(i, 3, True)
     boundingbox = cv2.boundingRect(contours_poly)
     correctedbox = (int(boundingbox[0]), int(boundingbox[1]), int(boundingbox[0]+boundingbox[2]), int(boundingbox[1]+boundingbox[3]))
-    boundingboxes.append(correctedbox)
+    # Handle i and j, the only letters that aren't one continous shape
+    if abs(correctedbox[2] - prevbox[2]) < 100:
+        combinedRect = correctedbox
+        boundingboxes[i-1] = combinedRect
+        print("boxes combined")
+    else:
+        boundingboxes.append(correctedbox)
+
+    prevbox = correctedbox
     
 # Well the sorting was easier than expected
 boundingboxes.sort()

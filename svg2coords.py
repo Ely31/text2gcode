@@ -1,3 +1,4 @@
+import constants as c
 # Constants
 # S for scale
 s = 0.1
@@ -108,7 +109,7 @@ print(f'abslastx: {absolutecoordoflastx}')
 print(f'abslasty: {absolutecoordoflasty}')
 
 def makegcode():
-    outstr = f'G0 X{round(-calcleftmostpoint()*s, 4)} Y{round(((calcbottommostpoint()+v)*s), 4)}\nG0 Z-1\n'
+    outstr = f'G0 X{round(-calcleftmostpoint()*s, 4)} Y{round(((calcbottommostpoint()+v)*s), 4)}\nG0 Z{-c.liftHeight}\n'
     # Start at 1 to skip the first one because it's just 0,0 so it does nothing
     i = 1
     while (i < (len(coordslist))/2):
@@ -116,7 +117,8 @@ def makegcode():
         i += 1
     # Move back to the baseline after we're done so we can do the next character
     # Have to do some funny stuff because y positive is up in gcode and down in svg
-    outstr += f"G0 Z1\nG0 X{round((calcrightmostpoint() - absolutecoordoflastx + k)*s, 4)} Y{round((-calcbottommostpoint() + absolutecoordoflasty - v)*s, 4)}"
+    outstr += f"G0 Z{c.liftHeight}\nG0 X{round((calcrightmostpoint() - absolutecoordoflastx + k)*s, 4)} Y{round((-calcbottommostpoint() + absolutecoordoflasty - v)*s, 4)}\n"
+    outstr += f"; End of letter"
 
     return outstr
 
